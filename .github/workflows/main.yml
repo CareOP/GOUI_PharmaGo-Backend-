@@ -1,4 +1,4 @@
-name: Notify PharmaGO Dashboard
+name: Notify PharmaGO
 
 on:
   push:
