@@ -1,196 +1,124 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+
+@theme {
+  /* Modern Typography */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Standard Shadcn Mappings */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Role-Specific Branding */
+  --color-patient: hsl(var(--patient));
+  --color-doctor: hsl(var(--doctor));
+  --color-admin: hsl(var(--admin));
+  --color-pharmacy: hsl(var(--pharmacy));
+
+  /* Modern classic radius */
+  --radius-lg: 0.75rem;
+  --radius-md: calc(0.75rem - 2px);
+  --radius-sm: calc(0.75rem - 4px);
+
+  /* Refined Animations */
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+}
 
 @layer base {
   :root {
+    /* Classic Medical Clean Palette */
     --background: 210 20% 98%;
-    --foreground: 222 47% 11%;
-
+    --foreground: 224 71.4% 4.1%;
+    
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    --primary: 174 72% 40%;
+    --card-foreground: 224 71.4% 4.1%;
+    
+    --primary: 174 72% 38%; /* Refined Teal */
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-
-    --accent: 174 72% 95%;
+    
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.2 39.1% 14.9%;
+    
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    
+    --accent: 174 72% 96%;
     --accent-foreground: 174 72% 30%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
+    
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 174 72% 40%;
+    --ring: 174 72% 38%;
 
-    --radius: 0.75rem;
-
-    /* Role-based colors */
+    /* Role Hues */
     --patient: 199 89% 48%;
-    --patient-foreground: 0 0% 100%;
-    --patient-muted: 199 89% 95%;
-    
     --doctor: 142 71% 45%;
-    --doctor-foreground: 0 0% 100%;
-    --doctor-muted: 142 71% 95%;
-    
     --admin: 262 83% 58%;
-    --admin-foreground: 0 0% 100%;
-    --admin-muted: 262 83% 95%;
-    
     --pharmacy: 25 95% 53%;
-    --pharmacy-foreground: 0 0% 100%;
-    --pharmacy-muted: 25 95% 95%;
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 174 72% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 174 72% 95%;
-    --sidebar-accent-foreground: 174 72% 30%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 174 72% 40%;
-
-    --chart-1: 174 72% 40%;
-    --chart-2: 199 89% 48%;
-    --chart-3: 142 71% 45%;
-    --chart-4: 262 83% 58%;
-    --chart-5: 25 95% 53%;
-
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
-    --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
+    
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 222 47% 6%;
+    --background: 224 71% 4%;
     --foreground: 210 20% 98%;
-
-    --card: 222 47% 9%;
+    --card: 224 71% 7%;
     --card-foreground: 210 20% 98%;
-
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 174 72% 50%;
-    --primary-foreground: 222 47% 6%;
-
-    --secondary: 222 47% 15%;
-    --secondary-foreground: 210 20% 98%;
-
-    --muted: 222 47% 15%;
-    --muted-foreground: 220 9% 60%;
-
-    --accent: 174 72% 20%;
-    --accent-foreground: 174 72% 80%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 222 47% 18%;
-    --input: 222 47% 18%;
-    --ring: 174 72% 50%;
-
-    --patient: 199 89% 55%;
-    --patient-foreground: 222 47% 6%;
-    --patient-muted: 199 89% 15%;
-    
-    --doctor: 142 71% 50%;
-    --doctor-foreground: 222 47% 6%;
-    --doctor-muted: 142 71% 15%;
-    
-    --admin: 262 83% 65%;
-    --admin-foreground: 222 47% 6%;
-    --admin-muted: 262 83% 15%;
-    
-    --pharmacy: 25 95% 60%;
-    --pharmacy-foreground: 222 47% 6%;
-    --pharmacy-muted: 25 95% 15%;
-
-    --sidebar-background: 222 47% 9%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 174 72% 50%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 174 72% 20%;
-    --sidebar-accent-foreground: 174 72% 80%;
-    --sidebar-border: 222 47% 18%;
-    --sidebar-ring: 174 72% 50%;
-
-    --chart-1: 174 72% 50%;
-    --chart-2: 199 89% 55%;
-    --chart-3: 142 71% 50%;
-    --chart-4: 262 83% 65%;
-    --chart-5: 25 95% 60%;
-
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.4), 0 1px 2px -1px hsl(0 0% 0% / 0.4);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.4);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(0 0% 0% / 0.4);
-    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.4), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
+    --primary: 174 72% 48%;
+    --primary-foreground: 224 71% 4%;
+    --border: 224 71% 12%;
+    --input: 224 71% 12%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
-
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
 @layer utilities {
+  /* Modern "Glass" effect for Dashboards */
   .glass {
-    @apply bg-card/80 backdrop-blur-md;
-  }
-  
-  .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(174 72% 55%) 100%);
-  }
-  
-  .gradient-patient {
-    background: linear-gradient(135deg, hsl(var(--patient)) 0%, hsl(199 89% 60%) 100%);
-  }
-  
-  .gradient-doctor {
-    background: linear-gradient(135deg, hsl(var(--doctor)) 0%, hsl(142 71% 55%) 100%);
-  }
-  
-  .gradient-admin {
-    background: linear-gradient(135deg, hsl(var(--admin)) 0%, hsl(262 83% 68%) 100%);
-  }
-  
-  .gradient-pharmacy {
-    background: linear-gradient(135deg, hsl(var(--pharmacy)) 0%, hsl(25 95% 63%) 100%);
+    @apply bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg;
   }
 
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* Sophisticated Classic Gradients */
+  .gradient-subtle {
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
   }
 
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
+  /* Role Gradients for high-performance cards */
+  .card-patient { @apply border-l-4 border-l-patient bg-patient/5; }
+  .card-doctor { @apply border-l-4 border-l-doctor bg-doctor/5; }
+  .card-admin { @apply border-l-4 border-l-admin bg-admin/5; }
+  .card-pharmacy { @apply border-l-4 border-l-pharmacy bg-pharmacy/5; }
 }

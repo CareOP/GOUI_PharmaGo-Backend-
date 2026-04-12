@@ -1,9 +1,10 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion"; // Required: npm install framer-motion
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import heroBg from "@/assets/hero-bg.jpg";
 import {
   Activity,
   Calendar,
@@ -15,11 +16,11 @@ import {
   Stethoscope,
   Building2,
   ArrowRight,
-  Check,
-  Sparkles,
-  BarChart3,
-  Clock,
-  Zap,
+  Quote,
+  ChevronDown,
+  PlusCircle,
+  LogIn,
+  Sparkles
 } from "lucide-react";
 
 const features = [
@@ -44,11 +45,6 @@ const features = [
     description: "Direct prescription flow to pharmacy with real-time inventory and fulfillment tracking.",
   },
   {
-    icon: <BarChart3 className="h-6 w-6" />,
-    title: "Predictive Analytics",
-    description: "AI-driven insights for no-show predictions, demand forecasting, and resource planning.",
-  },
-  {
     icon: <Shield className="h-6 w-6" />,
     title: "Secure & Compliant",
     description: "Enterprise-grade security with HIPAA compliance and encrypted patient data.",
@@ -61,8 +57,10 @@ const roles = [
     title: "Patients",
     description: "Book appointments, check symptoms with AI, and manage prescriptions seamlessly.",
     icon: <Users className="h-8 w-8" />,
-    link: "/patient",
-    color: "gradient-patient",
+    link: "/login/patient",
+    color: "from-blue-500/20 to-cyan-500/20",
+    border: "group-hover:border-cyan-500/50",
+    iconColor: "text-cyan-400"
   },
   {
     role: "doctor",
@@ -70,15 +68,19 @@ const roles = [
     description: "Manage appointments, access patient histories, and AI-assisted diagnostics.",
     icon: <Stethoscope className="h-8 w-8" />,
     link: "/doctor",
-    color: "gradient-doctor",
+    color: "from-emerald-500/20 to-teal-500/20",
+    border: "group-hover:border-emerald-500/50",
+    iconColor: "text-emerald-400"
   },
   {
     role: "admin",
     title: "Hospital Admin",
     description: "Monitor operations, manage resources, and view real-time analytics.",
     icon: <Building2 className="h-8 w-8" />,
-    link: "/admin",
-    color: "gradient-admin",
+    link: "/login/institution",
+    color: "from-purple-500/20 to-indigo-500/20",
+    border: "group-hover:border-purple-500/50",
+    iconColor: "text-purple-400"
   },
   {
     role: "pharmacy",
@@ -86,283 +88,254 @@ const roles = [
     description: "Process prescriptions, manage inventory, and track order fulfillment.",
     icon: <Pill className="h-8 w-8" />,
     link: "/pharmacy",
-    color: "gradient-pharmacy",
+    color: "from-orange-500/20 to-amber-500/20",
+    border: "group-hover:border-orange-500/50",
+    iconColor: "text-orange-400"
   },
 ];
 
-const stats = [
-  { value: "50K+", label: "Patients Served" },
-  { value: "98%", label: "Satisfaction Rate" },
-  { value: "35%", label: "Wait Time Reduced" },
-  { value: "24/7", label: "AI Availability" },
-];
-
 export default function LandingPage() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-                <Activity className="h-5 w-5 text-primary-foreground" />
+    <div className="min-h-screen bg-[#020817] text-slate-50 selection:bg-teal-500/30 overflow-x-hidden">
+      {/* Mesh Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-teal-500/10 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full" />
+      </div>
+
+      {/* Modern Glass Header */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3 bg-[#020817]/70 backdrop-blur-xl border-b border-slate-800' : 'py-6 bg-transparent'}`}>
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-blue-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
+                <Activity className="h-5 w-5 text-white" />
               </div>
-              <span className="font-bold text-xl">PharmaGO</span>
-            </div>
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Features
-              </a>
-              <a href="#roles" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Solutions
-              </a>
-              <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </a>
+              <span className="font-bold text-2xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                PharmaGO
+              </span>
+            </motion.div>
+            
+            <nav className="hidden lg:flex items-center gap-8">
+              {['Features', 'Solutions', 'About'].map((item) => (
+                <a 
+                  key={item}
+                  href={`#${item.toLowerCase()}`} 
+                  className="text-sm font-medium text-slate-400 hover:text-teal-400 transition-colors relative group"
+                >
+                  {item}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-400 transition-all group-hover:w-full" />
+                </a>
+              ))}
             </nav>
-            <div className="flex items-center gap-3">
+
+            <div className="flex items-center gap-4">
               <ThemeToggle />
-              <Link to="/login">
-                <Button variant="outline" size="sm">
-                  Sign In
+              <div className="relative">
+                <Button 
+                  onMouseEnter={() => setIsDropdownOpen(true)}
+                  className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-6 rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-teal-500/20"
+                >
+                  Access Portal <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </Button>
-              </Link>
-              {/* <Link to="/login" className="hidden sm:block">
-                <Button size="sm" className="gradient-primary text-primary-foreground">
-                  Get Started
-                </Button>
-              </Link> */}
+
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      onMouseLeave={() => setIsDropdownOpen(false)}
+                      className="absolute top-full right-0 mt-4 w-72 rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-2xl p-3 shadow-2xl z-[60]"
+                    >
+                      <div className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Medical Institutions</div>
+                      <Link to="/login/staff" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 hover:bg-teal-500/10 hover:text-teal-400 transition-all group">
+                        <LogIn className="h-4 w-4" /> Staff Authentication
+                      </Link>
+                      <Link to="/login/admin_login" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 hover:bg-white/5 transition-all group mb-2">
+                        <PlusCircle className="h-4 w-4" /> Register Facility
+                      </Link>
+                      <div className="h-[1px] bg-slate-800 my-2" />
+                      <div className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Patients</div>
+                      <Link to="/login/patient" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 hover:bg-blue-500/10 hover:text-blue-400 transition-all group">
+                        <Users className="h-4 w-4" /> Patient Sign In
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-20"
-          style={{ backgroundImage: `url(${heroBg})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/50 to-background" />
-        
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            {/* <Badge variant="secondary" className="px-4 py-2 text-sm gap-2">
-              <Sparkles className="h-4 w-4" />
-              AI-Powered Healthcare Automation
-            </Badge> */}
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              Transform Healthcare with{" "}
-              <span className="text-primary">PharmaGO</span>
+      <section className="relative pt-48 pb-32 overflow-hidden">
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-5xl mx-auto text-center"
+          >
+            <Badge variant="outline" className="mb-6 py-1 px-4 border-teal-500/30 bg-teal-500/5 text-teal-400 rounded-full animate-bounce">
+              <Sparkles className="h-3 w-3 mr-2" /> AI-Powered Healthcare Automation
+            </Badge>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[0.9] mb-8">
+              Transforming Care <br />
+              <span className="bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-500 bg-clip-text text-transparent italic">
+                with Intelligence.
+              </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Platform connecting patients, doctors, hospitals, and pharmacies 
-              with AI-driven symptom assessment and seamless prescription fulfillment.
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-12">
+              The next-generation SaaS ecosystem bridging the gap between clinical excellence and operational efficiency.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/login">
-                <Button size="lg" className="gradient-primary text-primary-foreground gap-2 px-8">
-                  Get Started
-                  {/* <ArrowRight className="h-5 w-5" /> */}
-                </Button>
-              </Link>
-              {/* <Button size="lg" variant="outline" className="gap-2">
-                <Activity className="h-5 w-5" />
-                Watch Demo
-              </Button> */}
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <p className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-muted/50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">Features</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Everything You Need for Modern Healthcare
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive tools powered by AI to streamline every aspect of healthcare delivery.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <Card key={index} className="border bg-card hover:shadow-lg transition-all duration-300 group">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Workflow Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">Workflow</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Seamless Patient Journey
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              From appointment booking to prescription fulfillment — all in one connected platform.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-4">
-              {[
-                { step: 1, title: "Book", desc: "AI symptom check & appointment", icon: <Calendar className="h-5 w-5" /> },
-                { step: 2, title: "Check-in", desc: "QR code hospital intake", icon: <QrCode className="h-5 w-5" /> },
-                { step: 3, title: "Consult", desc: "Doctor consultation", icon: <Stethoscope className="h-5 w-5" /> },
-                { step: 4, title: "Fulfill", desc: "Pharmacy prescription", icon: <Pill className="h-5 w-5" /> },
-              ].map((item, index) => (
-                <div key={index} className="relative">
-                  <Card className="border bg-card text-center p-6 h-full">
-                    <div className="w-10 h-10 rounded-full gradient-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 font-bold">
-                      {item.step}
-                    </div>
-                    <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center mx-auto mb-3">
-                      {item.icon}
-                    </div>
-                    <h4 className="font-semibold mb-1">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </Card>
-                  {index < 3 && (
-                    <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Role Cards Section */}
-      <section id="roles" className="py-20 bg-muted/50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">Solutions</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Tailored for Every Role
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Dedicated dashboards designed for each stakeholder in the healthcare ecosystem.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {roles.map((item, index) => (
-              <Link key={index} to={item.link}>
-                <Card className="border bg-card h-full hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden">
-                  <CardContent className="p-6 relative">
-                    <div className={`w-16 h-16 rounded-2xl ${item.color} text-primary-foreground flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                      {item.icon}
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-4">{item.description}</p>
-                    <div className="flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
-                      <span>Explore Dashboard</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section id="about" className="py-20">
-  <div className="container mx-auto px-4">
-    <Card className="border-0 gradient-primary text-primary-foreground overflow-hidden">
-      <CardContent className="p-8 md:p-12 relative">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-background rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-background rounded-full blur-3xl" />
-        </div>
-        <div className="relative max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold">
-            Transform Your Healthcare Operations
-          </h2>
-          <p className="text-lg opacity-90">
-            PharmaGO Health helps healthcare providers streamline operations, manage patient care efficiently, 
-            and improve overall healthcare experiences.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/login">
-              <Button size="lg" variant="secondary" className="gap-2 px-8">
-                Get Started
-                {/* <ArrowRight className="h-5 w-5" /> */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+              <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-slate-700 hover:bg-slate-800 text-slate-200 text-lg">
+                Watch Ecosystem Demo
               </Button>
-            </Link>
-            {/* <Button size="lg" variant="outline" className="gap-2 bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-              Learn More
-            </Button> */}
+            </div>
+
+            {/* Premium Quote Card */}
+            <motion.div 
+              whileHover={{ y: -5 }}
+              className="relative p-10 rounded-[2rem] bg-slate-900/40 border border-slate-800 backdrop-blur-md shadow-2xl max-w-3xl mx-auto group overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Quote size={120} />
+              </div>
+              <p className="text-2xl font-medium text-slate-200 mb-6 leading-tight relative z-10">
+                "We elevate the human hand to heal through focused technology."
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <div className="h-px w-8 bg-teal-500/50" />
+                <span className="font-bold text-teal-400 uppercase tracking-widest text-xs">Dr. Ben Carson</span>
+                <div className="h-px w-8 bg-teal-500/50" />
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Solutions Grid */}
+      <section id="solutions" className="py-32 relative">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
+            <div className="max-w-xl">
+              <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 mb-4">Ecosystem</Badge>
+              <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white">
+                Tailored for Every Role.
+              </h2>
+            </div>
+            <p className="text-slate-400 max-w-sm">
+              Dedicated high-performance dashboards designed for every stakeholder in the hospital lifecycle.
+            </p>
           </div>
-          <div className="flex items-center justify-center gap-6 pt-4 text-sm opacity-80">
-            <div className="flex items-center gap-2">
-              <Check className="h-4 w-4" />
-              <span>Easy to use</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="h-4 w-4" />
-              <span>Secure and reliable</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="h-4 w-4" />
-              <span>Customizable for your needs</span>
-            </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {roles.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Link to={item.link}>
+                  <Card className={`h-full bg-slate-900/40 border-slate-800 hover:bg-slate-800/60 transition-all duration-500 group cursor-pointer overflow-hidden backdrop-blur-sm relative border-t-2 ${item.border}`}>
+                    <CardContent className="p-8">
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500`}>
+                        <div className={item.iconColor}>{item.icon}</div>
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">{item.title}</h3>
+                      <p className="text-slate-400 text-sm leading-relaxed mb-8">{item.description}</p>
+                      <div className={`flex items-center gap-2 font-bold text-[10px] uppercase tracking-[0.2em] transition-all ${item.iconColor}`}>
+                        <span>Explore Dashboard</span>
+                        <ArrowRight className="h-3 w-3 group-hover:translate-x-2 transition-transform" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </CardContent>
-    </Card>
-  </div>
-</section>
+      </section>
+
+      {/* Features - Horizontal Slider Style */}
+      <section id="features" className="py-32 bg-slate-950/50 border-y border-slate-900">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-24">
+            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
+              Core Capabilities.
+            </h2>
+            <div className="h-1 w-20 bg-teal-500 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <motion.div 
+                key={index}
+                whileHover={{ scale: 1.02 }}
+                className="p-8 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-teal-500/30 transition-all group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center mb-6 group-hover:bg-teal-500 group-hover:text-slate-950 transition-colors">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                <Activity className="h-4 w-4 text-primary-foreground" />
+      <footer className="py-20 border-t border-slate-900 relative">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-400 to-blue-600 flex items-center justify-center shadow-lg">
+                <Activity className="h-6 w-6 text-white" />
               </div>
-              <span className="font-semibold">PharmaGO</span>
+              <div>
+                <span className="font-bold text-xl block leading-none">PharmaGO</span>
+                <span className="text-[10px] text-slate-500 uppercase tracking-widest">Medical Excellence</span>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              © 2025 PharmaGO Health. All rights reserved.
+            
+            <div className="flex gap-12">
+              <div className="flex flex-col gap-3">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Product</span>
+                <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">Platform</a>
+                <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">Security</a>
+              </div>
+              <div className="flex flex-col gap-3">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Legal</span>
+                <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">Privacy</a>
+                <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">HIPAA</a>
+              </div>
+            </div>
+          </div>
+          <div className="mt-20 pt-8 border-t border-slate-900 text-center md:text-left">
+            <p className="text-sm text-slate-500 font-medium">
+              © 2026 PharmaGO Health. Built for the future of clinical automation.
             </p>
-            {/* <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <a href="#" className="hover:text-foreground transition-colors">Contact</a>
-            </div> */}
           </div>
         </div>
       </footer>

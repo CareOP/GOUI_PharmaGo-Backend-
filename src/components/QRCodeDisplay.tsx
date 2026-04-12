@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, Clock, MapPin } from "lucide-react";
+import { Clock, MapPin } from "lucide-react";
 
 interface QRCodeDisplayProps {
   appointmentId: string;
@@ -9,27 +10,38 @@ interface QRCodeDisplayProps {
 }
 
 export function QRCodeDisplay({ appointmentId, patientName, time, location }: QRCodeDisplayProps) {
+  const [qrBlobUrl, setQrBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchQR() {
+      const response = await fetch("http://localhost:8000/generate-checkin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointmentId, patientName, time, location }),
+      });
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        setQrBlobUrl(URL.createObjectURL(blob));
+      }
+    }
+    fetchQR();
+  }, [appointmentId]);
+
   return (
     <Card className="border-2 border-primary/20 bg-card">
       <CardHeader className="text-center pb-2">
         <CardTitle className="text-lg">Check-in QR Code</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center space-y-4">
-        {/* Simulated QR Code */}
-        <div className="w-48 h-48 bg-foreground p-4 rounded-lg">
-          <div className="w-full h-full bg-background rounded grid grid-cols-8 grid-rows-8 gap-0.5 p-2">
-            {Array.from({ length: 64 }).map((_, i) => (
-              <div
-                key={i}
-                className={`${
-                  Math.random() > 0.5 ? "bg-foreground" : "bg-background"
-                } ${
-                  (i < 24 && i % 8 < 3) || (i < 24 && i % 8 > 4) || 
-                  (i > 39 && i % 8 < 3) ? "bg-foreground" : ""
-                }`}
-              />
-            ))}
-          </div>
+        
+        {/* Real QR Code from Backend */}
+        <div className="w-48 h-48 bg-white p-2 rounded-lg flex items-center justify-center border">
+          {qrBlobUrl ? (
+            <img src={qrBlobUrl} alt="Check-in QR" className="w-full h-full" />
+          ) : (
+            <div className="animate-pulse bg-slate-200 w-full h-full rounded" />
+          )}
         </div>
 
         <div className="text-center space-y-1">
