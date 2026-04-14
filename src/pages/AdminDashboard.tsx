@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/cards/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,28 +6,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { analyticsData, patients, appointments } from "@/lib/mockData";
+import { analyticsData, patients } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { useVoiceAssistant } from "@/hooks/useVoiceAssistant";
+import { useAuth0 } from "@auth0/auth0-react"; // Correct Auth0 Hook
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Users,
-  Calendar,
-  BarChart3,
-  Settings,
   QrCode,
-  TrendingUp,
   TrendingDown,
-  AlertCircle,
   CheckCircle,
-  Clock,
-  Activity,
   Brain,
-  Sparkles,
   UserCheck,
   UserX,
   RefreshCw,
+  Mic,
+  MicOff,
 } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { AnimatePresence, motion } from "framer-motion";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -43,11 +43,84 @@ const statusColors = {
 };
 
 export default function AdminDashboard() {
-  const { patientFlow, todayStats, noShowRate, avgWaitTime, resourceUtilization } = analyticsData;
+  const navigate = useNavigate();
+  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
+  const { patientFlow, todayStats, noShowRate, avgWaitTime } = analyticsData;
+
+  // VOICE COMMAND LOGIC
+  const voiceActions = {
+    "go to reception": () => { toast.info("Opening Reception..."); navigate("/admin/reception"); },
+    "show staff": () => { toast.info("Opening Staff Management..."); navigate("/admin/staff"); },
+    "generate report": () => toast.success("Generating daily analytics report..."),
+    "scan": () => toast.info("Initializing QR Scanner..."),
+    "logout": () => logout({ logoutParams: { returnTo: window.location.origin } }),
+    "refresh": () => window.location.reload(),
+    "scroll down": () => window.scrollBy({ top: 500, behavior: "smooth" }),
+    "scroll up": () => window.scrollBy({ top: -500, behavior: "smooth" }),
+  };
+
+  const { isListening, startListening } = useVoiceAssistant(voiceActions);
+
+  // Loading state to prevent UI flicker during auth check
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <RefreshCw className="h-8 w-8 animate-spin text-admin" />
+          <p className="text-sm font-medium animate-pulse">Authenticating Session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <DashboardLayout role="admin" userName="Admin User" navItems={navItems}>
-      <div className="space-y-6">
+    <DashboardLayout 
+      role="admin" 
+      userName={user?.name || "Admin User"} 
+      navItems={navItems}
+    >
+      <div className="space-y-6 relative">
+        
+        {/* Auth status notification for guest users */}
+        {!isAuthenticated && (
+          <div className="bg-admin/10 border border-admin/20 p-3 rounded-lg flex items-center justify-between">
+            <p className="text-sm text-admin font-medium">You are currently in preview mode.</p>
+            <Button size="sm" variant="outline" onClick={() => loginWithRedirect()} className="border-admin text-admin hover:bg-admin/10">
+              Sign In
+            </Button>
+          </div>
+        )}
+
+        {/* FLOATING VOICE INTERFACE */}
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+          <AnimatePresence>
+            {isListening && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                className="bg-card border border-admin/30 p-3 rounded-xl shadow-2xl backdrop-blur-md flex items-center gap-3"
+              >
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-admin opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-admin"></span>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-admin">AI Listening...</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <Button
+            size="icon"
+            onClick={startListening}
+            className={cn(
+              "h-14 w-14 rounded-full shadow-xl transition-all duration-300",
+              isListening ? "bg-destructive hover:bg-destructive/90 animate-pulse" : "bg-admin hover:bg-admin/90"
+            )}
+          >
+            {isListening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+          </Button>
+        </div>
+
         {/* Quick Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
@@ -79,7 +152,6 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Analytics */}
           <div className="lg:col-span-2 space-y-6">
             {/* Patient Flow Chart */}
             <Card className="border">
@@ -169,16 +241,9 @@ export default function AdminDashboard() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            className={cn(
-                              "capitalize",
-                              statusColors[patient.status as keyof typeof statusColors]
-                            )}
-                          >
-                            {patient.status.replace("-", " ")}
-                          </Badge>
-                        </div>
+                        <Badge className={cn("capitalize", statusColors[patient.status as keyof typeof statusColors])}>
+                          {patient.status.replace("-", " ")}
+                        </Badge>
                       </div>
                     ))}
                   </div>
@@ -187,7 +252,6 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          {/* Sidebar Metrics */}
           <div className="space-y-6">
             {/* AI Predictions */}
             <Card className="border">
@@ -208,96 +272,33 @@ export default function AdminDashboard() {
                   </div>
                   <p className="text-3xl font-bold">{noShowRate}%</p>
                   <Progress value={100 - noShowRate} className="h-2 mt-2" />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    AI predicts 3 potential no-shows today
-                  </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Avg Wait Time</span>
-                    <div className="flex items-center gap-1 text-doctor">
-                      <TrendingDown className="h-4 w-4" />
-                      <span className="text-sm font-medium">-3 min</span>
-                    </div>
+                    <p className="text-3xl font-bold">{avgWaitTime} min</p>
                   </div>
-                  <p className="text-3xl font-bold">{avgWaitTime} min</p>
                   <Progress value={70} className="h-2 mt-2" />
                 </div>
-
-                <div className="p-4 rounded-lg bg-muted">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Resource Utilization</span>
-                    <div className="flex items-center gap-1 text-pharmacy">
-                      <TrendingUp className="h-4 w-4" />
-                      <span className="text-sm font-medium">+5%</span>
-                    </div>
-                  </div>
-                  <p className="text-3xl font-bold">{resourceUtilization}%</p>
-                  <Progress value={resourceUtilization} className="h-2 mt-2" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="border">
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Manage Schedules
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <Users className="h-4 w-4" />
-                  Staff Overview
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <BarChart3 className="h-4 w-4" />
-                  Generate Report
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <AlertCircle className="h-4 w-4" />
-                  View Alerts
-                </Button>
               </CardContent>
             </Card>
 
             {/* Department Status */}
             <Card className="border">
-              <CardHeader>
-                <CardTitle className="text-lg">Department Status</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle className="text-lg">Department Status</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 {[
                   { name: "General Medicine", load: 85, status: "busy" },
                   { name: "Pediatrics", load: 45, status: "normal" },
                   { name: "Cardiology", load: 92, status: "critical" },
-                  { name: "Orthopedics", load: 60, status: "normal" },
                 ].map((dept) => (
                   <div key={dept.name} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">{dept.name}</span>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          dept.status === "critical" ? "text-destructive border-destructive" :
-                          dept.status === "busy" ? "text-pharmacy border-pharmacy" :
-                          "text-doctor border-doctor"
-                        )}
-                      >
-                        {dept.load}%
-                      </Badge>
+                      <Badge variant="outline">{dept.load}%</Badge>
                     </div>
-                    <Progress
-                      value={dept.load}
-                      className={cn(
-                        "h-2",
-                        dept.status === "critical" && "[&>div]:bg-destructive",
-                        dept.status === "busy" && "[&>div]:bg-pharmacy"
-                      )}
-                    />
+                    <Progress value={dept.load} className="h-2" />
                   </div>
                 ))}
               </CardContent>

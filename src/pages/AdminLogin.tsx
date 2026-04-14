@@ -136,6 +136,7 @@ export default function AdminLoginPage() {
                   <Lock className="h-5 w-5" />
                   {isLoading ? "Validating..." : "Initiate Secure Entry"}
                 </Button>
+6y
 
                 <div className="relative py-2 flex items-center gap-4">
                   <div className="h-[1px] flex-1 bg-slate-800" />

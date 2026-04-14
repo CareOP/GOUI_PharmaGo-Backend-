@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Auth0Provider } from "@auth0/auth0-react";
+import { VoiceProvider } from "@/contexts/VoiceContext";
 
 // Pages
 import StaffLogin from "@/pages/StaffLogin";
@@ -29,6 +30,8 @@ import Staff from "./pages/Staff";
 import PharmacyPrescriptions from "./pages/PharmacyPrescriptions";
 import PharmacyInventory from "./pages/PharmacyInventory";
 import PatientAuthentication from "./authentication/Patient_authentication";
+import { Global } from "recharts";
+import { GlobalVoiceController } from "./components/GlobalVoiceController";
 
 const queryClient = new QueryClient();
 
@@ -51,11 +54,13 @@ const AppContent = () => {
     >
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
+          <VoiceProvider>
+            <GlobalVoiceController/>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
               <Route path="/register/institution" element={<HospitalRegisterPage />} />
               <Route path="/authentication/Patient_authentication" element={<PatientAuthentication />} />
               <Route path="/login/patient" element={<LoginPage />} />
@@ -89,6 +94,7 @@ const AppContent = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </TooltipProvider>
+          </VoiceProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </Auth0Provider>
